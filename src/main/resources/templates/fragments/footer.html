@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="footer">
+    <footer class="bg-light text-center text-lg-start mt-auto pt-4">
+        <div class="container">
+            <div class="row">
+
+                <div class="col-lg-6 mb-3 mb-lg-0 text-center">
+                    <h6 class="text-uppercase fw-bold mb-3">Cookbook</h6>
+                    <p class="small mb-0">Cook with passion, explore new flavors, and make every meal a masterpiece! 🍽️</p>
+                </div>
+
+                <div class="col-lg-3 mb-3 mb-lg-0 text-center">
+                    <h6 class="text-uppercase fw-bold mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a th:href="@{/}" class="text-dark text-decoration-none small">Home</a></li>
+                        <li><a th:href="@{/dishes/all}" class="text-dark text-decoration-none small">Dishes</a></li>
+                        <li><a th:href="@{/ingredients}" class="text-dark text-decoration-none small">Ingredients</a></li>
+                        <li><a th:href="@{/about}" class="text-dark text-decoration-none small">About</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 text-center">
+                    <h6 class="text-uppercase fw-bold mb-3">Follow Us</h6>
+                    <a href="#" class="text-dark listItem">
+                        <i class="bi bi-facebook"></i> Facebook
+                    </a><br>
+                    <a href="#" class="text-dark listItem">
+                        <i class="bi bi-instagram"></i> Instagram
+                    </a><br>
+                    <a href="#" class="text-dark listItem">
+                        <i class="bi bi-twitter"></i> Twitter
+                    </a>
+                </div>
+
+            </div>
+
+            <hr class="my-3">
+
+            <div class="text-center pb-2">
+                <small>© 2025 Cookbook. All rights reserved.</small>
+            </div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

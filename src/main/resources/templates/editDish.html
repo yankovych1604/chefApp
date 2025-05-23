@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${actionTitle}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+</header>
+
+<main>
+    <div class="container mt-4 mb-4">
+        <h2 th:text="${actionTitle}"></h2>
+
+        <div id="ingredientWarning" class="alert alert-danger d-none">
+            Please add at least one ingredient before saving the dish.
+        </div>
+
+        <form th:action="${formAction}" method="post" th:object="${dish}">
+            <div style="margin-bottom: 16px">
+                <div class="form-group">
+                    <label for="name">Dish Name</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select class="form-control" id="type" th:field="*{type}" required>
+                        <option value="" disabled selected>Select a type</option>
+                        <option value="SALAD">Salad</option>
+                        <option value="SOUP">Soup</option>
+                        <option value="MAIN">Main</option>
+                        <option value="DESSERT">Dessert</option>
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="ingredients-section" th:if="${dish.id != null}" style="margin-top: 24px">
+                <h3>Ingredients</h3>
+
+                <div th:if="${#lists.isEmpty(dishIngredients)}">
+                    <p>No ingredients added yet</p>
+                </div>
+
+                <table class="table table-bordered text-center" th:unless="${#lists.isEmpty(dishIngredients)}">
+                    <thead>
+                    <tr>
+                        <th style="width: 33%;">Ingredient</th>
+                        <th style="width: 33%;">Weight (g)</th>
+                        <th style="width: 34%;">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="di, iterStat : ${dishIngredients}">
+                        <td th:text="${di.ingredientName}"></td>
+                        <td>
+                            <input type="number" min="0" step="0.01"
+                                   th:value="${di.weight}"
+                                   th:name="${'dishIngredients[' + iterStat.index + '].weight'}"
+                                   class="form-control text-center" required/>
+                        </td>
+                        <td>
+                            <input type="hidden" th:value="${di.id}"
+                                   th:name="${'dishIngredients[' + iterStat.index + '].id'}"/>
+                            <input type="hidden" th:value="${di.dishId}"
+                                   th:name="${'dishIngredients[' + iterStat.index + '].dishId'}"/>
+                            <input type="hidden" th:value="${di.ingredientId}"
+                                   th:name="${'dishIngredients[' + iterStat.index + '].ingredientId'}"/>
+                            <input type="hidden" th:value="${di.ingredientName}"
+                                   th:name="${'dishIngredients[' + iterStat.index + '].ingredientName'}"/>
+
+                            <button type="button" class="btn btn-danger btn-sm delete-ingredient-btn w-100"
+                                    th:data-ingredient-id="${di.id}">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="add-ingredient mt-4">
+                <h5 style="margin-bottom: 2px">Add New Ingredients</h5>
+                <div id="newIngredientsContainer" style="display: flex; flex-direction: column; align-items: center"></div>
+            </div>
+
+            <select id="ingredientOptions" hidden>
+                <option value="">Select Ingredient</option>
+                <option th:each="ingr : ${allIngredients}"
+                        th:value="${ingr.id}" th:text="${ingr.name}"></option>
+            </select>
+
+            <div class="row row-cols-1 row-cols-sm-3 g-2" style="margin-top: 2px">
+                <div class="col d-grid">
+                    <button type="button" class="btn btn-primary" id="addNewIngredientBtn" onclick="addNewIngredient()">Add Another Ingredient</button>
+                </div>
+                <div class="col d-grid">
+                    <button type="submit" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+                </div>
+                <div class="col d-grid">
+                    <a th:href="@{/dishes/all}" class="btn btn-primary" id="backToDishesBtn">Back to Dishes</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    document.querySelectorAll('.delete-ingredient-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const row = this.closest('tr');
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'deleteIngredientIds[]';
+            input.value = this.getAttribute('data-ingredient-id');
+            row.style.display = 'none';
+            document.querySelector('form').appendChild(input);
+        });
+    });
+
+    let newIngredientIndex = /*[[${dishIngredients.size()}]]*/ 0;
+
+    function addNewIngredient() {
+        const container = document.getElementById('newIngredientsContainer');
+        const ingredientOptions = document.getElementById('ingredientOptions').innerHTML;
+
+        const row = document.createElement('div');
+        row.className = 'row align-items-center mb-2 mt-2 gap-1 w-100';
+
+        row.innerHTML = `
+            <div class="col d-grid" style="padding: 0">
+                <select name="dishIngredients[${newIngredientIndex}].ingredientId" class="form-select" required>
+                    ${ingredientOptions}
+                </select>
+            </div>
+            <div class="col d-grid" style="padding: 0">
+                <input type="number" step="0.01" min="0" name="dishIngredients[${newIngredientIndex}].weight"
+                    placeholder="Weight (g)" class="form-control" required/>
+            </div>
+            <div class="col d-grid" style="padding: 0">
+                <button type="button" class="btn btn-danger" onclick="this.closest('.row').remove()">Remove</button>
+            </div>
+        `;
+
+        container.appendChild(row);
+        newIngredientIndex++;
+    }
+
+    document.getElementById('saveChangesBtn').addEventListener('click', function (e) {
+        const newIngredientsCount = document.querySelectorAll('#newIngredientsContainer .row').length;
+        const existingIngredientsCount = Array.from(document.querySelectorAll('.ingredients-section tbody tr')).filter(row => row.style.display !== 'none').length;
+
+        const totalIngredients = newIngredientsCount + existingIngredientsCount;
+
+        if (totalIngredients === 0) {
+            e.preventDefault();
+
+            const warning = document.getElementById('ingredientWarning');
+            warning.classList.remove('d-none');
+            warning.classList.add('show');
+
+            setTimeout(() => {
+                warning.classList.add('d-none');
+                warning.classList.remove('show');
+            }, 3000);
+        }
+    });
+</script>
+
+</body>
+</html>
