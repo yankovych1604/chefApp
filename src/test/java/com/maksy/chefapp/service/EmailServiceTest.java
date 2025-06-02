@@ -2,6 +2,7 @@ package com.maksy.chefapp.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -10,6 +11,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -44,16 +47,21 @@ class EmailServiceTest {
         // Arrange
         emailService.to = testRecipient;
         String expectedSubject = "Test Error";
-        String expectedMessage = "Test message";
+        String expectedMessagePart = "Test message";
 
         // Act
-        emailService.sendErrorNotification(expectedSubject, expectedMessage);
+        emailService.sendErrorNotification(expectedSubject, expectedMessagePart);
 
         // Assert
-        verify(mailSender).send(argThat((SimpleMailMessage mail) ->
-                Objects.requireNonNull(mail.getTo())[0].equals(testRecipient) &&
-                        Objects.equals(mail.getSubject(), expectedSubject) &&
-                        Objects.equals(mail.getText(), expectedMessage)
-        ));
+        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender).send(captor.capture());
+        SimpleMailMessage actualMessage = captor.getValue();
+
+        assertEquals(testRecipient, Objects.requireNonNull(actualMessage.getTo())[0]);
+        assertEquals(expectedSubject, actualMessage.getSubject());
+        // Перевіряємо, що основне повідомлення входить у текст (ігноруємо дату і бекрейс)
+        assertTrue(actualMessage.getText().contains(expectedMessagePart));
+        // Додатково — можна перевірити, що у тексті є слово "Бекрейс"
+        assertTrue(actualMessage.getText().contains("Бекрейс:"));
     }
 }

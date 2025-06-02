@@ -96,8 +96,13 @@ public class DishDetailsPageTest extends AbstractUiTest {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("window.confirm = function(msg) { window._confirmMessage = msg; return false; };");
 
-        WebElement deleteBtn = driver.findElement(By.xpath("//form[contains(@action, '/dishes/delete/')]/button"));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", deleteBtn);
+        WebElement deleteBtn = driver.findElements(By.xpath("//form[contains(@action, '/dishes/delete/')]/button"))
+                .stream()
+                .filter(WebElement::isDisplayed)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Visible delete button not found"));
+
+        js.executeScript("arguments[0].scrollIntoView({block: 'center'});", deleteBtn);
         Thread.sleep(500);
         deleteBtn.click();
 
