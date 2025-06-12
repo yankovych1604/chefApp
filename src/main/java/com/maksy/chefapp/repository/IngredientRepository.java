@@ -13,11 +13,15 @@ import java.util.Optional;
 
 @Repository
 public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
+    // Пошук інгредієнта за його ID
     Optional<Ingredient> findById(Long id);
 
+    // Повертає сторінку інгредієнтів, відфільтрованих за категорією, якщо категорія не вказана (null), повертаються всі інгредієнти
     @Query("SELECT i FROM Ingredient i WHERE (:ingredientCategory IS NULL OR i.category = :ingredientCategory) ")
     Page<Ingredient> findAllByCategory(@Param("ingredientCategory") IngredientCategory ingredientCategory, Pageable pageable);
 
+    // Повертає сторінку інгредієнтів з фільтрацією за категорією/мінімальною та максимальною калорійністю
+    // Якщо будь-який з параметрів є null, відповідна умова ігнорується
     @Query("SELECT i FROM Ingredient i WHERE (:ingredientCategory IS NULL OR i.category = :ingredientCategory) AND" +
             "(:caloriesFrom IS NULL OR i.caloriesPer100g >= :caloriesFrom) AND" +
             "(:caloriesTo IS NULL OR i.caloriesPer100g <= :caloriesTo)")

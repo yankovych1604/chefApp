@@ -6,9 +6,9 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface IngredientMapper {
-    // Method to map Ingredient to IngredientDTO
+    // Перетворює сутність Ingredient у DTO
     IngredientDTO ingredientToIngredientDTO(Ingredient ingredient);
 
-    // Method to map IngredientDTO to Ingredient
+    // Перетворює DTO у сутність Ingredient
     Ingredient ingredientDTOToIngredient(IngredientDTO ingredientDTO);
 }

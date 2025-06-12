@@ -19,6 +19,8 @@ public class LoggingAspect {
     @Pointcut("execution(* com.maksy.chefapp.service..*(..)) || execution(* com.maksy.chefapp.repository..*(..))")
     public void serviceAndRepositoryPointCut() {}
 
+
+    // Логування перед методом
     @Before("serviceAndRepositoryPointCut()")
     public void logBefore(JoinPoint joinPoint) {
         logger.info("Entering method: {}.{}() with arguments = {}",
@@ -27,6 +29,7 @@ public class LoggingAspect {
                 joinPoint.getArgs());
     }
 
+    // Логування після успішного виконання
     @AfterReturning(pointcut = "serviceAndRepositoryPointCut()", returning = "result")
     public void logAfterReturning(JoinPoint joinPoint, Object result) {
         logger.info("Exiting method: {}.{}() with result = {}",
@@ -35,6 +38,7 @@ public class LoggingAspect {
                 result);
     }
 
+    // Логування та надсилання на email після помилки
     @AfterThrowing(pointcut = "serviceAndRepositoryPointCut()", throwing = "exception")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
         logger.error("Exception in method: {}.{}() with cause = '{}'",

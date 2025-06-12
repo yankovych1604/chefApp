@@ -18,11 +18,14 @@ public class EmailService {
     public void sendErrorNotification(String subject, String message) {
         StringBuilder emailBody = new StringBuilder();
 
+        // Додаємо часову мітку в форматі "yyyy-MM-dd HH:mm:ss"
         String timestamp = java.time.LocalDateTime.now().toString().replace("T", " ");
         emailBody.append(timestamp).append(" ERROR ").append(" - ").append(subject).append("\n");
 
+        // Основне повідомлення про помилку
         emailBody.append(message).append("\n\n");
 
+        // Стек викликів — бекрейс (імітація), щоб краще бачити, де сталася помилка
         emailBody.append("Бекрейс:\n");
 
         Exception e = new Exception(message);
@@ -30,10 +33,11 @@ public class EmailService {
             emailBody.append(element.toString()).append("\n");
         }
 
+        // Створення email-повідомлення
         SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(to);
-        mailMessage.setSubject(subject);
-        mailMessage.setText(emailBody.toString());
-        mailSender.send(mailMessage);
+        mailMessage.setTo(to);                                                                         // Кому надіслати
+        mailMessage.setSubject(subject);                                                                   // Тема листа
+        mailMessage.setText(emailBody.toString());                                                        // Текст листа
+        mailSender.send(mailMessage);                                                                      // Надсилання
     }
 }

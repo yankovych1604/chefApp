@@ -19,6 +19,7 @@ public class IngredientController {
     @Autowired
     private IngredientService ingredientService;
 
+    // Показує список інгредієнтів з фільтрацією, сортуванням і пагінацією
     @GetMapping
     public String getAllIngredients(@RequestParam(value = "page", defaultValue = "0") int page,
                                     @RequestParam(required = false) IngredientCategory ingredientCategory,
@@ -37,6 +38,7 @@ public class IngredientController {
         return "ingredients";
     }
 
+    // Відображає форму створення нового інгредієнта
     @GetMapping("/create-ingredient")
     public String createIngredientForm(Model model) {
         model.addAttribute("ingredient", new Ingredient());
@@ -46,6 +48,7 @@ public class IngredientController {
         return "ingredientForm";
     }
 
+    // Обробляє збереження нового інгредієнта
     @PostMapping("/save")
     public String saveIngredient(@ModelAttribute("ingredient") IngredientDTO ingredientDTO,
                                  RedirectAttributes redirectAttributes) {
@@ -58,6 +61,7 @@ public class IngredientController {
         return "redirect:/ingredients";
     }
 
+    // Відображає деталі інгредієнта за ID
     @GetMapping("/{id}")
     public String getIngredientDetails(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         IngredientDTO ingredientDTO = ingredientService.findById(id);
@@ -71,6 +75,7 @@ public class IngredientController {
         }
     }
 
+    // Відображає форму редагування інгредієнта
     @GetMapping("/edit/{id}")
     public String editIngredient(@PathVariable Long id, Model model , RedirectAttributes redirectAttributes) {
         IngredientDTO ingredientDTO = ingredientService.findById(id);
@@ -87,6 +92,7 @@ public class IngredientController {
 
     }
 
+    // Обробляє оновлення інгредієнта
     @PostMapping("/update/{id}")
     public String updateDish(@PathVariable("id") long id,
                              @ModelAttribute("ingredient") IngredientDTO ingredientDTO,
@@ -97,6 +103,7 @@ public class IngredientController {
         return "redirect:/ingredients";
     }
 
+    // Видаляє інгредієнт. Якщо інгредієнт використовується в стравах — відображає помилку
     @GetMapping("/delete/{id}")
     public String deleteIngredient(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

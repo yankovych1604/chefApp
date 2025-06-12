@@ -33,6 +33,7 @@ public class DishController {
     private IngredientService ingredientService;
 
 
+    // Відображає всі страви з можливістю фільтрації за типом страви та пагінацією
     @GetMapping("/all")
     public String showAllDishes(@RequestParam(value = "page", defaultValue = "0") int page,
                                 @RequestParam(required = false) DishType dishType,
@@ -45,6 +46,7 @@ public class DishController {
         return "dishes";
     }
 
+    // Відображає деталі страви за її ID, включно з інгредієнтами та підрахунком калорій та підсвічує інгредієнти, які входять у вказаний діапазон калорійності
     @GetMapping("/{id}")
     public String showDishById(@PathVariable("id") long id,
                                @RequestParam(required = false) Double minCalories,
@@ -54,6 +56,7 @@ public class DishController {
         if (dishDTO != null) {
             List<DishIngredientDTO> dishIngredients = dishIngredientService.findAllByDishId(dishDTO.getId());
 
+            // Отримуємо калорійність кожного інгредієнта (на 100г)
             Map<Long, Double> caloriesPer100gMap = ingredientService
                     .findAllById(dishIngredients.stream().map(DishIngredientDTO::getIngredientId).toList())
                     .stream()
@@ -64,12 +67,14 @@ public class DishController {
 
             boolean applyHighlighting = (minCalories != null || maxCalories != null);
 
+            // Обчислення калорій кожного інгредієнта з урахуванням його ваги
             for (DishIngredientDTO di : dishIngredients) {
                 Double caloriesPer100g = caloriesPer100gMap.get(di.getIngredientId());
                 if (caloriesPer100g != null) {
                     double total = caloriesPer100g * di.getWeight() / 100;
                     ingredientCalories.put(di.getIngredientId(), total);
 
+                    // Підсвічування інгредієнтів, які потрапляють у заданий діапазон калорійності
                     if (applyHighlighting && (minCalories == null || total >= minCalories) && (maxCalories == null || total <= maxCalories)) {
                         highlightedIngredientIds.add(di.getIngredientId());
                     }
@@ -90,6 +95,7 @@ public class DishController {
         }
     }
 
+    // Видаляє страву за ID
     @GetMapping("/delete/{id}")
     public String deleteDishById(@PathVariable("id") long id, Model model, RedirectAttributes redirectAttributes) {
         try {
@@ -101,6 +107,7 @@ public class DishController {
         return "redirect:/dishes/all";
     }
 
+    // Показує форму редагування страви
     @GetMapping("/edit/{id}")
     public String editDishById(@PathVariable("id") long id, Model model, RedirectAttributes redirectAttributes) {
         DishDTO dishDTO = dishService.getDishById(id);
@@ -121,6 +128,7 @@ public class DishController {
         }
     }
 
+    // Оновлює страву після редагування
     @PostMapping("/update/{id}")
     public String updateDish(@PathVariable("id") long id,
                              @ModelAttribute("dishDTO") DishDTO dishDTO,
@@ -132,6 +140,7 @@ public class DishController {
         return "redirect:/dishes/all";
     }
 
+    // Зберігає нову страву
     @PostMapping("/save")
     public String saveDish(@ModelAttribute("dishDTO") DishDTO dishDTO, RedirectAttributes redirectAttributes) {
         dishService.createDish(dishDTO);
@@ -139,7 +148,7 @@ public class DishController {
         return "redirect:/dishes/all";
     }
 
-
+    // Відображає форму створення нової страви
     @GetMapping("/create-dish")
     public String addDish(Model model, RedirectAttributes redirectAttributes) {
         try {

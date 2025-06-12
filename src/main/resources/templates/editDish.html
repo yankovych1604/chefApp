@@ -134,6 +134,19 @@
 
     function addNewIngredient() {
         const container = document.getElementById('newIngredientsContainer');
+        const rows = container.querySelectorAll('.row');
+
+        if (rows.length > 0) {
+            const lastRow = rows[rows.length - 1];
+            const select = lastRow.querySelector('select');
+            const input = lastRow.querySelector('input[type="number"]');
+
+            if (!select.value || !input.value || parseFloat(input.value) <= 0) {
+                alert("Please fill in the last ingredient before adding a new one.");
+                return;
+            }
+        }
+
         const ingredientOptions = document.getElementById('ingredientOptions').innerHTML;
 
         const row = document.createElement('div');
